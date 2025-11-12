@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { userAPI } from '../services/api';
 import './Dashboard.css';
 
 function Dashboard({ user }) {
+  const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -64,7 +65,10 @@ function Dashboard({ user }) {
             <div className="card-icon">👤</div>
             <h3>Profile</h3>
             <p>View your account details</p>
-            <button className="btn btn-primary">
+            <button 
+              onClick={() => navigate('/profile')}
+              className="btn btn-primary"
+            >
               View Profile
             </button>
           </div>

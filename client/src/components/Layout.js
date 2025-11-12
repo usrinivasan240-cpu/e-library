@@ -24,6 +24,7 @@ function Layout({ isLoggedIn, userRole, user, onLogout, children }) {
                 <Link to="/dashboard" className="nav-link">Dashboard</Link>
                 <Link to="/e-library" className="nav-link">E-Library</Link>
                 <Link to="/printouts" className="nav-link">Printouts</Link>
+                <Link to="/profile" className="nav-link">Profile</Link>
                 
                 {userRole === 'admin' && (
                   <Link to="/admin" className="nav-link nav-link-admin">Admin</Link>
