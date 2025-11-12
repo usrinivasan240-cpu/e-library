@@ -8,9 +8,12 @@ function AdminDashboard() {
   const [userStats, setUserStats] = useState(null);
   const [bookStats, setBookStats] = useState(null);
   const [printoutStats, setPrintoutStats] = useState(null);
+  const [printouts, setPrintouts] = useState([]);
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterRole, setFilterRole] = useState('all');
 
   useEffect(() => {
     fetchAdminData();
@@ -21,13 +24,13 @@ function AdminDashboard() {
     setError('');
     try {
       if (activeTab === 'overview') {
-        const [stats, bookStats, printStats] = await Promise.all([
+        const [userStats, bookStats, printStats] = await Promise.all([
           adminAPI.getUserStats(),
           adminAPI.getBookStats(),
           adminAPI.getPrintoutStats()
         ]);
-        setUserStats(stats.data);
-        setBookStats(stats.data);
+        setUserStats(userStats.data);
+        setBookStats(bookStats.data);
         setPrintoutStats(printStats.data);
       } else if (activeTab === 'users') {
         const response = await adminAPI.getAllUsers();
@@ -35,6 +38,9 @@ function AdminDashboard() {
       } else if (activeTab === 'books') {
         const response = await adminAPI.getAllBooks();
         setBooks(response.data);
+      } else if (activeTab === 'printouts') {
+        const response = await adminAPI.getPrintoutStats();
+        setPrintouts(response.data?.stats || []);
       }
     } catch (error) {
       setError('Failed to fetch data');
@@ -91,6 +97,22 @@ function AdminDashboard() {
     }
   };
 
+  const getFilteredUsers = () => {
+    return users.filter(user => {
+      const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           user.email.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesRole = filterRole === 'all' || user.role === filterRole;
+      return matchesSearch && matchesRole;
+    });
+  };
+
+  const getFilteredBooks = () => {
+    return books.filter(book =>
+      book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      book.author.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  };
+
   if (loading) {
     return (
       <div className="container">
@@ -127,6 +149,12 @@ function AdminDashboard() {
             onClick={() => setActiveTab('books')}
           >
             Books
+          </button>
+          <button
+            className={`nav-btn ${activeTab === 'printouts' ? 'active' : ''}`}
+            onClick={() => setActiveTab('printouts')}
+          >
+            Printouts
           </button>
         </div>
 
@@ -255,11 +283,29 @@ function AdminDashboard() {
           <div className="users-section">
             <div className="section-card">
               <h2>All Users</h2>
-              {users.length === 0 ? (
+              <div className="filter-controls">
+                <input
+                  type="text"
+                  placeholder="Search by name or email..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="search-input"
+                />
+                <select
+                  value={filterRole}
+                  onChange={(e) => setFilterRole(e.target.value)}
+                  className="filter-select"
+                >
+                  <option value="all">All Roles</option>
+                  <option value="admin">Admin</option>
+                  <option value="user">User</option>
+                </select>
+              </div>
+              {getFilteredUsers().length === 0 ? (
                 <p>No users found</p>
               ) : (
                 <div className="users-table">
-                  {users.map((user) => (
+                  {getFilteredUsers().map((user) => (
                     <div key={user._id} className="user-item">
                       <div className="user-info">
                         <div>
@@ -326,11 +372,20 @@ function AdminDashboard() {
           <div className="books-section">
             <div className="section-card">
               <h2>All Books</h2>
-              {books.length === 0 ? (
+              <div className="filter-controls">
+                <input
+                  type="text"
+                  placeholder="Search by title or author..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="search-input"
+                />
+              </div>
+              {getFilteredBooks().length === 0 ? (
                 <p>No books found</p>
               ) : (
                 <div className="books-table">
-                  {books.map((book) => (
+                  {getFilteredBooks().map((book) => (
                     <div key={book._id} className="book-item">
                       <div className="book-info">
                         <h4>{book.title}</h4>
@@ -365,6 +420,58 @@ function AdminDashboard() {
                       </div>
                     </div>
                   ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'printouts' && (
+          <div className="printouts-section">
+            <div className="section-card">
+              <h2>Printout Statistics</h2>
+              {printouts.length === 0 ? (
+                <p>No printout data available</p>
+              ) : (
+                <div className="printout-stats">
+                  <div className="stats-breakdown">
+                    <h3>Status Breakdown</h3>
+                    <div className="stats-grid-small">
+                      {printouts.byStatus?.map((stat) => (
+                        <div key={stat._id} className="stat-item">
+                          <span className="stat-label">{stat._id || 'Unknown'}</span>
+                          <span className="stat-value">{stat.count}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="stats-breakdown">
+                    <h3>Payment Status Breakdown</h3>
+                    <div className="stats-grid-small">
+                      {printouts.byPaymentStatus?.map((stat) => (
+                        <div key={stat._id} className="stat-item">
+                          <span className="stat-label">{stat._id || 'Unknown'}</span>
+                          <span className="stat-value">{stat.count}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="stats-breakdown">
+                    <h3>Color Mode Distribution</h3>
+                    <div className="stats-grid-small">
+                      {printouts.colorModeBreakdown?.map((stat) => (
+                        <div key={stat._id} className="stat-item">
+                          <span className="stat-label">{stat._id}</span>
+                          <div className="mode-stat">
+                            <span>Count: {stat.count}</span>
+                            <span>Revenue: ₹{stat.revenue}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

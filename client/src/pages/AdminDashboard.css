@@ -122,9 +122,44 @@
   gap: 15px;
 }
 
+/* Filter Controls */
+.filter-controls {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.search-input,
+.filter-select {
+  padding: 10px 15px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus,
+.filter-select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.search-input {
+  flex: 1;
+  min-width: 200px;
+}
+
+.filter-select {
+  min-width: 150px;
+}
+
 /* Users Section */
 .users-section,
-.books-section {
+.books-section,
+.printouts-section {
   display: grid;
   gap: 20px;
 }
@@ -278,6 +313,73 @@
   flex-wrap: wrap;
 }
 
+/* Printouts Section */
+.printout-stats {
+  display: grid;
+  gap: 30px;
+}
+
+.stats-breakdown {
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+}
+
+.stats-breakdown h3 {
+  font-size: 16px;
+  color: #1f2937;
+  margin: 0 0 15px 0;
+  font-weight: 600;
+}
+
+.stats-grid-small {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+}
+
+.stat-item {
+  background: white;
+  border-radius: 8px;
+  padding: 15px;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: center;
+}
+
+.stat-item .stat-label {
+  font-size: 12px;
+  color: #6b7280;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.stat-item .stat-value {
+  font-size: 22px;
+  font-weight: bold;
+  color: #2563eb;
+}
+
+.mode-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 13px;
+  color: #1f2937;
+}
+
+.mode-stat span:first-child {
+  color: #6b7280;
+}
+
+.mode-stat span:last-child {
+  font-weight: 600;
+  color: #059669;
+}
+
 @media (max-width: 1200px) {
   .user-item,
   .book-item {
@@ -334,5 +436,19 @@
 
   .user-actions .btn {
     width: 100%;
+  }
+
+  .filter-controls {
+    flex-direction: column;
+  }
+
+  .search-input,
+  .filter-select {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .stats-grid-small {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
